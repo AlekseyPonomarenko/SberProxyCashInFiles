@@ -6,7 +6,7 @@ import java.util.*;
 
 public class CachedInvocationHandler implements InvocationHandler {
 
-    private final Map <Object, Object> resultByArg=new HashMap <>();
+    //private final Map <Object, Object> resultByArg=new SBHashMap();
     private final Object delegate;
 
     public CachedInvocationHandler(Object delegate) {
@@ -23,15 +23,14 @@ public class CachedInvocationHandler implements InvocationHandler {
 
         if(method.isAnnotationPresent(Cache.class)) {
 
-            if (resultByArg.containsKey(key(method, args))) {
-                System.out.println("Получение из кэша: " + method.getName());
-                result = resultByArg.get(key(method, args));
+            if (SBHashMapService.containsKey(key(method, args))) {
+
+                result = SBHashMapService.get(key(method, args), method);
                 stopInvoke = true;
             }
             else {
-                System.out.println("Вызов: " + method.getName());
                 result = method.invoke(delegate, args);
-                resultByArg.put(key(method, args), result);
+                SBHashMapService.put(key(method, args), result, method);
                 stopInvoke = true;
             }
         }
