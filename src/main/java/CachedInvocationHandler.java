@@ -49,7 +49,7 @@ public class CachedInvocationHandler implements InvocationHandler {
 
     private Object key(Method method , Object[] args){
         List <Object> key = new ArrayList <>();
-        key.add(method);
+        key.add(method.getName());
         key.addAll(Arrays.asList(args));
         return key;
     }

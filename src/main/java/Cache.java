@@ -6,4 +6,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Cache {
+
+    public static enum СacheType {
+        IN_MEMORY, FILE
+    }
+    СacheType cacheType() default СacheType.IN_MEMORY;
+    String fileNamePrefix() default  "data";
+    boolean zip() default false;
+
 }
