@@ -11,21 +11,19 @@ public class Main {
     public static void main(String[] args) {
 
         //загружаем последюю сохраненную версию
-       // SBHashMapService.loadLastVersion();
+        SBHashMapService.loadLastVersion();
 
         //наш прокси
         service = ServiceImpl.createNewProxy();
 
         //генератор потоков
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
-        for (int i=0; i<1; i++ ) {
-            for (int j = 0; j < 2; j++) {
+        for (int i=0; i<10; i++ ) {
+            for (int j = 0; j < 5; j++) {
                 MyRunnable task  = new MyRunnable("t" + i, i);
                 executor.execute(task);
             }
         }
-
-
 
         executor.shutdown();
         try {
@@ -35,7 +33,7 @@ public class Main {
         }
 
         //сохраняем последнюю версию
-       // SBHashMapService.saveLastVersion();
+       SBHashMapService.saveLastVersion();
     }
 
     public static Service getService() {

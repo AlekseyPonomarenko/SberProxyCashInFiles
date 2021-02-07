@@ -3,13 +3,17 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.StampedLock;
 
 public class CachedInvocationHandler implements InvocationHandler {
 
     private final Object delegate;
+    private ReentrantLock locker;
 
     public CachedInvocationHandler(Object delegate) {
         this.delegate=delegate;
+        this.locker = new ReentrantLock();
     }
 
     @Override
@@ -23,15 +27,22 @@ public class CachedInvocationHandler implements InvocationHandler {
         if(method.isAnnotationPresent(Cache.class)) {
 
             if (SBHashMapService.containsKey(key(method, args))) {
-
                 result = SBHashMapService.get(key(method, args), method);
-                stopInvoke = true;
             }
             else {
-                result = method.invoke(delegate, args);
-                SBHashMapService.put(key(method, args), result, method);
-                stopInvoke = true;
+                locker.lock();
+                try {
+                    if (SBHashMapService.containsKey(key(method, args))) {
+                        result = SBHashMapService.get(key(method, args), method);
+                    } else {
+                        result = method.invoke(delegate, args);
+                        SBHashMapService.put(key(method, args), result, method);
+                    }
+                } finally {
+                    locker.unlock();
+                }
             }
+            stopInvoke = true;
         }
 
         if (!stopInvoke) {
@@ -44,6 +55,7 @@ public class CachedInvocationHandler implements InvocationHandler {
         }
 
         return result;
+
     }
 
     private Object key(Method method , Object[] args){
