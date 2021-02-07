@@ -1,4 +1,3 @@
-import com.sun.org.apache.xml.internal.resolver.Catalog;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -17,10 +16,6 @@ public class SBHashMapService {
         if (!file.exists()){
             file.mkdir();
         }
-    }
-
-    static boolean loadFromFile(String filename){
-        return  true;
     }
 
     static public Object put(Object key, Object value, Method invokeMethod) {
@@ -75,7 +70,6 @@ public class SBHashMapService {
     static public boolean containsKey(Object key) {
         return resultByArg.containsKey(key);
     }
-
 
     static public boolean saveLastVersion(){
 

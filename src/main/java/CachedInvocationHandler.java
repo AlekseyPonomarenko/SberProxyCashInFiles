@@ -6,7 +6,6 @@ import java.util.*;
 
 public class CachedInvocationHandler implements InvocationHandler {
 
-    //private final Map <Object, Object> resultByArg=new SBHashMap();
     private final Object delegate;
 
     public CachedInvocationHandler(Object delegate) {
