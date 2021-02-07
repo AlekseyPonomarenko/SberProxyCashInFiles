@@ -12,11 +12,11 @@ public class Main {
         service = ServiceImpl.createNewProxy();
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
-
         for (int i=0; i<10; i++ ) {
-
-            MyRunnable task  =new MyRunnable("t" + i, i);
-            executor.execute(task);
+            for (int j = 0; j < 5; j++) {
+                MyRunnable task  = new MyRunnable("t" + i, i);
+                executor.execute(task);
+            }
         }
 
         executor.shutdown();
@@ -26,7 +26,6 @@ public class Main {
             e.printStackTrace();
         }
         SBHashMapService.saveLastVersion();
-
 
        /*
         System.out.println(service.doHardWork("t1", 1));*/
