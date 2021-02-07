@@ -4,12 +4,15 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SBHashMapService {
 
     static private Map <Object, Object> resultByArg = new HashMap <>();
     static final private String catalog = "D:\\Temp";
     static final private String nameLastversionMap = "lastVersion.sbdat";
+
+    static final ReentrantLock locker = new ReentrantLock(); // создаем заглушку
 
     static void newTempCatalog() {
         File file = new File(catalog);
@@ -20,33 +23,45 @@ public class SBHashMapService {
 
     static public Object put(Object key, Object value, Method invokeMethod) {
 
-        System.out.println("Добавили SBHashMap:" + value);
-        ParamsForCache paramsForCache = new ParamsForCache(invokeMethod);
+        Object res;
+        locker.lock(); // устанавливаем блокировку
+        try {
 
-        if (paramsForCache.cacheType == Cache.СacheType.FILE){
-            newTempCatalog();
+            System.out.println("Добавили SBHashMap:" + value);
+            ParamsForCache paramsForCache = new ParamsForCache(invokeMethod);
 
-            String newFileName = paramsForCache.prefix +"_"+ UUID.randomUUID().toString() + ".sbdat";
-            String fullFileName = catalog + "\\" + newFileName;
+            if (paramsForCache.cacheType == Cache.СacheType.FILE) {
+                newTempCatalog();
 
-            //сериализовать
-            try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fullFileName)))
-            {
-                oos.writeObject(value);
+                String newFileName = paramsForCache.prefix + "_" + UUID.randomUUID().toString() + ".sbdat";
+                String fullFileName = catalog + "\\" + newFileName;
+
+                //сериализовать
+                try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fullFileName))) {
+                    oos.writeObject(value);
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+                value = newFileName;
             }
-            catch(Exception ex){
-                System.out.println(ex.getMessage());
-            }
 
-            value = newFileName;
+            res = resultByArg.put(key, value);
+
+        } finally {
+            locker.unlock();
         }
 
-        return resultByArg.put(key, value);
+        return res;
     }
 
     static public Object get(Object key, Method invokeMethod) {
 
-        Object result = resultByArg.get(key);
+        Object result;
+
+        locker.lock();
+        try {
+
+        result = resultByArg.get(key);
         ParamsForCache paramsForCache = new ParamsForCache(invokeMethod);
 
         if (paramsForCache.cacheType == Cache.СacheType.FILE){
@@ -64,11 +79,27 @@ public class SBHashMapService {
         }
 
         System.out.println("Получили из SBHashMap " + result);
+
+
+        }
+        finally {
+            locker.unlock();
+        }
+
         return result;
+
     }
 
     static public boolean containsKey(Object key) {
-        return resultByArg.containsKey(key);
+
+        boolean res;
+        locker.lock();
+        try {
+            res = resultByArg.containsKey(key);
+         }finally {
+            locker.unlock();
+         }
+        return res;
     }
 
     static public boolean saveLastVersion(){

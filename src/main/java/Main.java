@@ -8,39 +8,29 @@ public class Main {
 
     public static void main(String[] args) {
 
+        //загружаем последюю сохраненную версию
         SBHashMapService.loadLastVersion();
-        service = ServiceImpl.createNewProxy();
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
-        for (int i=0; i<10; i++ ) {
+        //наш прокси
+        service = ServiceImpl.createNewProxy();
+
+        //генератор потоков
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+        for (int i=0; i<1; i++ ) {
             for (int j = 0; j < 5; j++) {
                 MyRunnable task  = new MyRunnable("t" + i, i);
                 executor.execute(task);
             }
         }
-
         executor.shutdown();
         try {
             executor.awaitTermination(2, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        //сохраняем последнюю версию
         SBHashMapService.saveLastVersion();
-
-       /*
-        System.out.println(service.doHardWork("t1", 1));*/
-       /* System.out.println(service.doHardWork("t1", 1));
-        System.out.println(service.doHardWork("t1", 1));
-        System.out.println(service.doHardWork("t1", 1));
-        System.out.println(service.doHardWork("t1", 1));*/
-        //System.out.println(service.doHardWork("t3", 3));
-        //System.out.println(service.doHardWork("t4", 4));
-
-
-        //System.out.println(service.doHardWork("t8", 7));
-
-
-
     }
 
     public static Service getService() {
