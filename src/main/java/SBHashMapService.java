@@ -4,9 +4,11 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SBHashMapService {
+  //  static private Map <Object, Object> resultByArg2 = new ConcurrentHashMap<>();
 
     static private Map <Object, Object> resultByArg = new HashMap <>();
     static final private String catalog = "D:\\Temp";

@@ -2,6 +2,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.Thread.*;
+
 public class Main {
 
     private static Service service;
@@ -9,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
 
         //загружаем последюю сохраненную версию
-        SBHashMapService.loadLastVersion();
+       // SBHashMapService.loadLastVersion();
 
         //наш прокси
         service = ServiceImpl.createNewProxy();
@@ -17,11 +19,14 @@ public class Main {
         //генератор потоков
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         for (int i=0; i<1; i++ ) {
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < 2; j++) {
                 MyRunnable task  = new MyRunnable("t" + i, i);
                 executor.execute(task);
             }
         }
+
+
+
         executor.shutdown();
         try {
             executor.awaitTermination(2, TimeUnit.MINUTES);
@@ -30,7 +35,7 @@ public class Main {
         }
 
         //сохраняем последнюю версию
-        SBHashMapService.saveLastVersion();
+       // SBHashMapService.saveLastVersion();
     }
 
     public static Service getService() {
